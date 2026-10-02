@@ -11,7 +11,7 @@ tier: procedural
 type: Rule
 generated:
   by: process:ai-memory/2.3.2
-  at: 2026-09-28T14:50:28Z
+  at: 2026-10-02T13:54:58Z
 ---
 # Padrão dos casos no Azure Test Plans do Rocket Web Automation
 
@@ -24,5 +24,7 @@ Informar as tags do domínio e as mesmas classificações relevantes do teste Pl
 No Summary/Description, escrever em português, em linhas curtas: `Como ...`, `Quero ...`, `Para ...`, e `Automação: tests/.../<arquivo>.spec.ts`. Não inventar parâmetros quando o teste não for parametrizado.
 
 Nos Steps, usar uma linha por passo na coluna Action, com palavras-chave Gherkin `Given`, `And`, `When`, `Then`; formular condições e resultados observáveis fielmente ao teste. Não enviar tabela Markdown nem um bloco `.feature` como substituto dos passos. Evitar detalhes internos não verificados e não agrupar cenários diferentes no mesmo Test Case.
+
+Para os próximos casos criados, cada step deve ficar em sua própria linha da coluna Action, sem linhas em branco ou quebras extras antes ou depois do conteúdo. Não reformate os casos existentes sem pedido explícito. Esta regra também está registrada no AGENTS.md canônico do projeto e foi confirmada pelo usuário em 2026-10-02.
 
 Este formato foi confirmado pelo usuário em capturas de um Test Case existente em 2026-09-22. A obrigatoriedade de cadastrar casos novos `@smoke` e `@sanity`, manter o título idêntico e garantir execução na pipeline automática foi confirmada pelo usuário em 2026-09-28.
