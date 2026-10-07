@@ -1,32 +1,61 @@
 # Arquitetura
 
-Fluxo ponta a ponta da base central de memória:
+Existe uma única base central do ai-memory.
+
+Ela fica no Dell G15.
 
 ```text
-ThinkPad / Codex App (MCP remoto)
-  → Tailscale (rede privada entre dispositivos)
-  → Dell G15 (Windows 11, Tailscale ligado)
-  → WSL2 Debian
-  → Docker, container `ai-memory` (ai-memory 2.3.2)
-  → /data/wiki (Git da wiki) + /data/db/memory.sqlite (SQLite)
+ThinkPad / Windows
+Codex + ai-memory.exe + hooks
+        |
+        | Tailscale / HTTPS
+        v
+Dell G15 / Windows
+        |
+        v
+WSL2 Debian
+Docker Compose
+ai-memory server
+        |
+        v
+ai-memory-data
+├── /data/wiki
+└── /data/db/memory.sqlite
 ```
 
-## Papéis
+O próprio G15 também usa o servidor:
 
-- **Dell G15:** único servidor. Detém o volume Docker `ai-memory-data`,
-  o Git da wiki em `/data/wiki` e o banco em `/data/db/memory.sqlite`.
-  Fica acessível aos outros dispositivos pelo Tailscale.
-- **ThinkPad:** apenas cliente. O Codex App usa o MCP remoto do ai-memory
-  hospedado no G15. Não possui segunda base de memória.
-- **Backup:** clone em `~/backups/ai-memory-wiki` (WSL do G15).
-  `origin` = `git@github.com:diasgarcia/ai-memory-wiki-backup.git`,
-  `source` = `/var/lib/docker/volumes/ai-memory-data/_data/wiki`.
-  O script gera um Git bundle via `alpine/git` com o volume montado
-  como somente leitura, atualiza o clone com `reset --hard` e envia
-  `master` ao GitHub. O cron executa periodicamente enquanto o WSL está ligado.
+```text
+G15 / Windows
+Codex + ai-memory.exe + hooks
+        |
+        | http://127.0.0.1:49374
+        v
+G15 / WSL
+ai-memory server
+```
 
-## Dados persistentes (no container)
+## Componentes
 
-- Volume Docker: `ai-memory-data`
-- Wiki Git: `/data/wiki`
-- Banco SQLite: `/data/db/memory.sqlite`
+- **Servidor:** container `ai-memory` no WSL2 Debian do G15.
+- **Persistência:** volume Docker `ai-memory-data`.
+- **Wiki:** `/data/wiki`.
+- **SQLite:** `/data/db/memory.sqlite`.
+- **Rede remota:** Tailscale.
+- **Clientes:** `ai-memory.exe` + hooks do Codex no Windows do G15 e do ThinkPad.
+- **Backup da wiki:** `~/bin/backup-ai-memory.sh`.
+- **Atualização do servidor:** `~/bin/update-ai-memory.sh`.
+
+## Regra principal
+
+O ThinkPad executa o cliente e os hooks localmente, mas não hospeda a base.
+
+Atualizar o servidor não atualiza automaticamente os clientes Windows.
+
+Por isso a rotina completa possui:
+
+```text
+G15 / WSL        → update-ai-memory.sh
+G15 / Windows    → ai-memory upgrade
+ThinkPad         → ai-memory upgrade
+```

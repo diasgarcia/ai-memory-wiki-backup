@@ -4,7 +4,13 @@ set -euo pipefail
 BACKUP="$HOME/backups/ai-memory-wiki"
 BUNDLE="$HOME/backups/ai-memory-wiki.bundle"
 
-# Usa um container temporário com Git para ler a wiki do volume Docker
+cleanup() {
+    rm -f "$BUNDLE"
+}
+
+trap cleanup EXIT
+
+# Cria um bundle consistente da wiki real do ai-memory
 docker run --rm \
   -v ai-memory-data:/data:ro \
   -v "$HOME/backups:/backup" \
@@ -15,10 +21,10 @@ docker run --rm \
 
 cd "$BACKUP"
 
-git fetch "$BUNDLE" master
-git reset --hard FETCH_HEAD
-git push origin master
+# Atualiza uma referência separada, sem tocar na branch atualmente aberta
+git fetch "$BUNDLE" master:refs/remotes/source/master
 
-rm -f "$BUNDLE"
+# Envia diretamente a versão da wiki para a master do GitHub
+git push origin refs/remotes/source/master:refs/heads/master
 
 echo "ai-memory backup concluído em $(date)"

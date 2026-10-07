@@ -1,49 +1,95 @@
 # ai-memory-wiki-backup
 
-Repositório de backup + documentação da infraestrutura do ai-memory.
+Backup e documentação do meu setup do ai-memory.
 
-## Branches
+## Arquitetura
 
-- **`master` = espelho automático da wiki.**
-  Atualizada exclusivamente pelo script `scripts/backup-ai-memory.sh`
-  (cópia versionada do `~/bin/backup-ai-memory.sh`), que faz:
-  `git fetch <bundle> master` + `git reset --hard FETCH_HEAD` + `git push origin master`.
-  O cron executa esse script periodicamente enquanto o WSL está ligado.
+```mermaid
+flowchart LR
+    TP["ThinkPad<br/>Windows<br/>Codex + ai-memory.exe + hooks"]
+    G15W["Dell G15<br/>Windows<br/>Codex + ai-memory.exe + hooks"]
+    TS["Tailscale<br/>HTTPS"]
+    SRV["Dell G15<br/>WSL2 Debian<br/>Docker Compose + ai-memory"]
+    DATA[("ai-memory-data<br/>SQLite + wiki")]
+    BK["backup-ai-memory.sh<br/>cron horário"]
+    GH["GitHub<br/>branch master"]
 
-- **`setup` = documentação da infraestrutura (esta branch).**
-  Contém `docs/` e `scripts/` com a descrição do servidor (Dell G15),
-  do cliente (ThinkPad/Codex), dos escopos e do backup.
-  É aqui que a documentação humana vive.
+    TP -->|"MCP + hooks"| TS
+    TS --> SRV
 
-## Regras
+    G15W -->|"localhost"| SRV
 
-1. **Nunca faça alterações manuais em `master`.**
-   Qualquer commit manual será descartado no próximo backup
-   por causa do `git reset --hard`.
-2. **Nunca versione secrets.**
-   Nenhum token, `AI_MEMORY_AUTH_TOKEN`, chave SSH privada,
-   senha ou credencial deve ser commitado em qualquer branch.
-   O script versionado em `scripts/` foi conferido e não contém secrets.
-3. Não modifique por aqui o servidor ai-memory, Docker, Tailscale ou cron.
-   Esta branch é só documentação.
+    SRV --> DATA
+    DATA --> BK
+    BK --> GH
+```
 
-## Estrutura da branch `setup`
+## Papéis
+
+- **Dell G15 / WSL2:** servidor central do ai-memory.
+- **Dell G15 / Windows:** cliente local do Codex.
+- **ThinkPad / Windows:** cliente remoto do Codex.
+- **GitHub / `master`:** backup automático da wiki.
+- **GitHub / `setup`:** documentação da infraestrutura.
+
+A base principal existe somente no G15.
+
+O ThinkPad possui `ai-memory.exe`, hooks e integração com o Codex, mas não possui uma segunda base de memória.
+
+## Atualização
+
+A rotina normal é:
+
+```text
+G15 / WSL
+  update-ai-memory.sh
+
+G15 / PowerShell
+  ai-memory upgrade
+
+ThinkPad / PowerShell
+  ai-memory upgrade
+```
+
+Veja [docs/update.md](docs/update.md).
+
+## Instalação
+
+Para recriar o ambiente do zero:
+
+[docs/install.md](docs/install.md)
+
+## Documentação
+
+- [Arquitetura](docs/architecture.md)
+- [G15](docs/g15.md)
+- [ThinkPad](docs/thinkpad.md)
+- [Projetos e escopos](docs/projects.md)
+- [Instalação](docs/install.md)
+- [Atualização](docs/update.md)
+
+## Estrutura
 
 ```text
 README.md
+
 docs/
-  architecture.md
-  g15.md
-  thinkpad.md
-  projects.md
+├── architecture.md
+├── g15.md
+├── thinkpad.md
+├── projects.md
+├── install.md
+└── update.md
+
 scripts/
-  backup-ai-memory.sh
+├── backup-ai-memory.sh
+└── update-ai-memory.sh
 ```
 
-## Links
+## Regras
 
-- `docs/architecture.md` — visão do fluxo ponta a ponta.
-- `docs/g15.md` — servidor central (Dell G15 + WSL2 + Docker).
-- `docs/thinkpad.md` — cliente remoto (ThinkPad + Codex App).
-- `docs/projects.md` — escopos `workspace/project` atuais.
-- `scripts/backup-ai-memory.sh` — cópia do script real de backup.
+1. Não faça alterações manuais na branch `master`.
+2. Nunca versione tokens, senhas ou chaves privadas.
+3. Nunca versione `AI_MEMORY_AUTH_TOKEN`.
+4. Os `.ai-memory.toml` ficam locais em cada clone.
+5. A branch `setup` contém somente documentação e scripts sem secrets.
