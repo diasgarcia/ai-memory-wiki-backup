@@ -1,4 +1,6 @@
 ---
+kind: rule
+abstract: "Formato de Test Cases smoke/sanity: título idêntico ao Playwright, associação real da automação e steps sem linhas vazias; fonte canônica em AGENTS e .agents."
 tags:
 - test-plans
 - playwright
@@ -10,20 +12,26 @@ pinned: true
 tier: procedural
 type: Rule
 generated:
-  by: process:ai-memory/2.3.2
-  at: 2026-10-02T13:54:58Z
+  by: process:ai-memory/3.0.0
+  at: 2026-10-21T17:16:08Z
 ---
 # Padrão dos casos no Azure Test Plans do Rocket Web Automation
+
+Referências canônicas: `AGENTS.md` e `.agents/skills/rocket-test-plans/SKILL.md` no repositório `rocket-web_automation`. Esta página resume o formato confirmado pelo usuário; conferir as instruções atuais antes de alterar casos.
+
+Novos cenários são definidos diretamente no Azure Test Plans e implementados em arquivos Playwright `.spec.ts`. Os `.feature` Cucumber são legado mantido por tempo indeterminado, não a fonte dos novos cenários.
 
 Ao entregar casos para cadastro no Test Plans, usar o título exatamente igual ao nome do `test(...)` Playwright quando houver automação, sem prefixos, sufixos ou tags no título. Informar a suíte/pasta do Test Plans separadamente; se a pasta não tiver sido confirmada, indicar que é sugestão, não fato.
 
 Sempre que for criado um teste novo classificado como `@smoke` ou `@sanity`, criar também o Test Case correspondente no Azure Test Plans. O nome do `test(...)` no Playwright e o título do Test Case devem ser exatamente iguais, incluindo acentuação, espaços e capitalização. O teste também precisa estar apto a executar na pipeline automática normal, sem depender de uma classificação ou requisito que o filtro da pipeline exclua. Atualmente essa obrigatoriedade se aplica apenas a testes `@smoke` e `@sanity`.
 
+Além do título idêntico, conferir a associação real entre o Test Case e a automação. Título igual sozinho não prova que a execução está vinculada no Azure.
+
 Informar as tags do domínio e as mesmas classificações relevantes do teste Playwright (por exemplo `api`, `db`, `sanity`, `contrato`, `admin`, `permissao`), usando o nome da tag no campo Tags do Azure DevOps.
 
 No Summary/Description, escrever em português, em linhas curtas: `Como ...`, `Quero ...`, `Para ...`, e `Automação: tests/.../<arquivo>.spec.ts`. Não inventar parâmetros quando o teste não for parametrizado.
 
-Nos Steps, usar uma linha por passo na coluna Action, com palavras-chave Gherkin `Given`, `And`, `When`, `Then`; formular condições e resultados observáveis fielmente ao teste. Não enviar tabela Markdown nem um bloco `.feature` como substituto dos passos. Evitar detalhes internos não verificados e não agrupar cenários diferentes no mesmo Test Case.
+Nos Steps, usar uma linha por passo na coluna Action, mantendo Expected Result vazio, com palavras-chave Gherkin `Given`, `And`, `When`, `Then`; formular condições e resultados observáveis fielmente ao teste. Não enviar tabela Markdown nem um bloco `.feature` como substituto dos passos. Evitar detalhes internos não verificados e não agrupar cenários diferentes no mesmo Test Case.
 
 Para os próximos casos criados, cada step deve ficar em sua própria linha da coluna Action, sem linhas em branco ou quebras extras antes ou depois do conteúdo. Não reformate os casos existentes sem pedido explícito. Esta regra também está registrada no AGENTS.md canônico do projeto e foi confirmada pelo usuário em 2026-10-02.
 
