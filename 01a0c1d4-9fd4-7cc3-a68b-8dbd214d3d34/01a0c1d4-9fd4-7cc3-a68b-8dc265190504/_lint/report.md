@@ -1,11 +1,11 @@
 ---
-title: Lint report 2026-10-21
+title: Lint report 2026-10-23
 tier: semantic
 kind: lint-report
 type: Lint Report
 generated:
   by: process:ai-memory/3.0.0
-  at: 2026-10-21T16:53:40Z
+  at: 2026-10-23T16:53:41Z
 ---
 # Lint findings
 
